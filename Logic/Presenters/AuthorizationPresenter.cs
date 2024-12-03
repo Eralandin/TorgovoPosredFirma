@@ -5,11 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using TorgovoPosredFirma.View.Interfaces;
 using Npgsql;
+using System.Security.Cryptography;
+using TorgovoPosredFirma.Model.Classes;
 
 namespace TorgovoPosredFirma.Logic.Presenters
 {
     public class AuthorizationPresenter
     {
+        string _connectionString = "Host = localhost;Username = postgres;Password = admin;Port = 5432;Database = postgres;";
         private readonly IAuth _view;
         public AuthorizationPresenter(IAuth view)
         {
@@ -25,22 +28,60 @@ namespace TorgovoPosredFirma.Logic.Presenters
                 {
                     throw new ArgumentNullException("Поле 'Имя пользователя' пустое!");
                 }
-                else if (loginPass[1] == "")
+                if (loginPass[1] == "")
                 {
                     throw new ArgumentNullException("Поле 'Пароль' пустое!");
                 }
-                string _con = "Host = localhost;Port = 5432;Username = " + loginPass[0] + ";Password = " + loginPass[1] + "; Database = postgres;";
-                var con = new NpgsqlConnection(_con);
-                con.Open();
-                var cm = new NpgsqlCommand("SELECT * FROM tbProducts", con);
-                var reader = cm.ExecuteReader();
-                string testtext = "";
-                while (reader.Read())
+                string checkQuery = "SELECT count(*) FROM tbUsers";
+                using (var connection = new NpgsqlConnection(_connectionString))
                 {
-                    testtext += reader.GetString(1) + "\n";
+                    connection.Open();
+                    using (var checkCommand = new NpgsqlCommand(checkQuery, connection))
+                    {
+                        long userCount = (long) checkCommand.ExecuteScalar();
+                        if (userCount == 0)
+                        {
+                            //регистрация
+                            _view.Message("Попытка регистрации успешна!");
+                        }
+                        else
+                        {
+                            string query = "SELECT username, password_hash FROM tbUsers WHERE username = @Username";
+                            using (var command = new NpgsqlCommand(query, connection))
+                            {
+                                command.Parameters.AddWithValue("Username", loginPass[0]);
+                                using (var reader = command.ExecuteReader())
+                                {
+                                    if (reader.Read())
+                                    {
+                                        var user = new User
+                                        {
+                                            Username = reader.GetString(0),
+                                            PasswordHash = reader.GetString(1),
+                                            Role = reader.GetString(2)
+                                        };
+                                        if (VerifyPassword(loginPass[1], user.PasswordHash))
+                                        {
+                                            _view.Message($"Попытка авторизации успешна! Роль: {user.Role}");
+                                        }
+                                        else
+                                        {
+                                            throw new UnauthorizedAccessException("Неправильный пароль! Доступ запрещён!");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new UnauthorizedAccessException("Данное имя пользователя не зарегистрировано!");
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-                _view.Message(testtext);
-                con.Close();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _view.Message("Ошибка! " + ex.Message);
             }
             catch (ArgumentNullException ex)
             {
@@ -49,6 +90,18 @@ namespace TorgovoPosredFirma.Logic.Presenters
             catch (Exception ex)
             {
                 _view.Message("Непредвиденная ошибка! \n" + ex.Message);
+            }
+        }
+        public static bool VerifyPassword(string unknownPassword, string knownPasswordHash)
+        {
+            string unknownPasswordHash = User.HashPassword(unknownPassword);
+            if (unknownPasswordHash != knownPasswordHash)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
     }
