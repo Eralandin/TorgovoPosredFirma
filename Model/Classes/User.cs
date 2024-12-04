@@ -45,13 +45,9 @@ namespace TorgovoPosredFirma.Model.Classes
                 {
                     throw new ArgumentNullException("Пароль пользователя не может быть пустым!");
                 }
-                else if (value.Length > 50)
-                {
-                    throw new ArgumentOutOfRangeException("Пароль пользователя не может быть длиной больше 50 символов!");
-                }
                 else
                 {
-                    passwordHash = HashPassword(value);
+                    passwordHash = value;
                 }
             }
         }

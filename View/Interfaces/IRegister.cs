@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace TorgovoPosredFirma.View.Interfaces
 {
-    public interface IAuth
+    public interface IRegister
     {
-        event EventHandler LoginAttempt;
+        event EventHandler RegistrationAttempt;
         List<string> GetLoginPassword();
         void Message(string message);
-        bool YesNoForm(string message);
-        void Registration();
+        void CloseForm();
     }
 }

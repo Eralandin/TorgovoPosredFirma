@@ -12,27 +12,20 @@ using TorgovoPosredFirma.View.Interfaces;
 
 namespace TorgovoPosredFirma.View.Forms
 {
-    public partial class AuthorizationForm : Form, IAuth
+    public partial class RegistrationForm : Form, IRegister
     {
-        private readonly AuthorizationPresenter _presenter;
-        public AuthorizationForm()
+        private readonly RegistrationPresenter _presenter;
+        public RegistrationForm()
         {
             InitializeComponent();
-            _presenter = new AuthorizationPresenter(this);
+            _presenter = new RegistrationPresenter(this);
 
             this.KeyPreview = true;
-            VersionLabel.AutoSize = true;
-            VersionLabel.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-
-            int x = AuthTopPanel.Width - VersionLabel.Width - 3;
-            int y = AuthTopPanel.Height - VersionLabel.Height - 10;
-
-            VersionLabel.Location = new System.Drawing.Point(x, y);
-
+            
             CapsLabel.Text = "Клавиша CapsLock: " + (Console.CapsLock ? "Включена" : "Выключена");
 
-            int x1 = AuthBottomPanel.Width - CapsLabel.Width - 5;
-            int y1 = AuthBottomPanel.Height - CapsLabel.Height - 10;
+            int x1 = RegisterBottomPanel.Width - CapsLabel.Width - 5;
+            int y1 = RegisterBottomPanel.Height - CapsLabel.Height - 10;
 
             CapsLabel.Location = new System.Drawing.Point(x1, y1);
 
@@ -43,7 +36,7 @@ namespace TorgovoPosredFirma.View.Forms
             InputLanguageChanged += AuthForm_InputLanguageChanged;
         }
 
-        public event EventHandler LoginAttempt;
+        public event EventHandler RegistrationAttempt;
 
         private void AuthForm_InputLanguageChanged(object sender, InputLanguageChangedEventArgs e)
         {
@@ -61,14 +54,15 @@ namespace TorgovoPosredFirma.View.Forms
 
         private void LoginBtn_Click(object sender, EventArgs e)
         {
-            LoginAttempt?.Invoke(this, EventArgs.Empty);
+            RegistrationAttempt?.Invoke(this, EventArgs.Empty);
         }
         public List<string> GetLoginPassword()
         {
             List<string> result = new List<string>
             {
                 LoginTextBox.Text,
-                PasswordTextBox.Text
+                PasswordTextBox.Text,
+                CheckPasswordTextBox.Text
             };
             return result;
         }
@@ -77,25 +71,13 @@ namespace TorgovoPosredFirma.View.Forms
             MessageForm messageForm = new MessageForm(message);
             messageForm.ShowDialog();
         }
-        public bool YesNoForm(string message)
-        {
-            YesNoForm yesNoForm = new YesNoForm(message);
-            if (yesNoForm.ShowDialog() == DialogResult.OK)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public void Registration()
-        {
-            RegistrationForm registrationForm = new RegistrationForm();
-            registrationForm.ShowDialog();
-        }
 
         private void CancelBtn_Click(object sender, EventArgs e)
+        {
+            Message("Регистрация прекращена пользователем");
+            this.Dispose();
+        }
+        public void CloseForm()
         {
             this.Dispose();
         }

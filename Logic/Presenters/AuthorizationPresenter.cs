@@ -32,6 +32,10 @@ namespace TorgovoPosredFirma.Logic.Presenters
                 {
                     throw new ArgumentNullException("Поле 'Пароль' пустое!");
                 }
+                if (loginPass[1].Length > 50)
+                {
+                    throw new ArgumentException("Пароль не может быть длиннее 50 символов!");
+                }
                 string checkQuery = "SELECT count(*) FROM tbUsers";
                 using (var connection = new NpgsqlConnection(_connectionString))
                 {
@@ -42,11 +46,18 @@ namespace TorgovoPosredFirma.Logic.Presenters
                         if (userCount == 0)
                         {
                             //регистрация
-                            _view.Message("Попытка регистрации успешна!");
+                            if (_view.YesNoForm("Зарегистрированных пользователей не обнаружено. Желаете пройти регистрацию как администратор?") == true)
+                            {
+                                _view.Registration();
+                            }
+                            else
+                            {
+                                throw new OperationCanceledException("Регистрация отменена пользователем");
+                            }
                         }
                         else
                         {
-                            string query = "SELECT username, password_hash FROM tbUsers WHERE username = @Username";
+                            string query = "SELECT username, password_hash, user_role FROM tbUsers WHERE username = @Username";
                             using (var command = new NpgsqlCommand(query, connection))
                             {
                                 command.Parameters.AddWithValue("Username", loginPass[0]);
@@ -79,11 +90,19 @@ namespace TorgovoPosredFirma.Logic.Presenters
                     }
                 }
             }
+            catch (OperationCanceledException ex)
+            {
+                _view.Message(ex.Message);
+            }
             catch (UnauthorizedAccessException ex)
             {
                 _view.Message("Ошибка! " + ex.Message);
             }
             catch (ArgumentNullException ex)
+            {
+                _view.Message("Ошибка! " + ex.Message);
+            }
+            catch (ArgumentException ex)
             {
                 _view.Message("Ошибка! " + ex.Message);
             }
