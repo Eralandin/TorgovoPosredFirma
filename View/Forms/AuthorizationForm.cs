@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TorgovoPosredFirma.Logic.Presenters;
+using TorgovoPosredFirma.Model.Classes;
 using TorgovoPosredFirma.View.Interfaces;
 
 namespace TorgovoPosredFirma.View.Forms
@@ -89,6 +90,15 @@ namespace TorgovoPosredFirma.View.Forms
                 return false;
             }
         }
+        public void Authorize(User user)
+        {
+            MainForm mainForm = new MainForm(user);
+            this.Visible = false;
+            mainForm.ShowDialog();
+            LoginTextBox.Text = "";
+            PasswordTextBox.Text = "";
+            this.Visible = true;
+        }
         public void Registration()
         {
             RegistrationForm registrationForm = new RegistrationForm();
@@ -97,7 +107,20 @@ namespace TorgovoPosredFirma.View.Forms
 
         private void CancelBtn_Click(object sender, EventArgs e)
         {
-            this.Dispose();
+            this.Close();
+        }
+
+        private void AuthorizationForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            YesNoForm yesNoForm = new YesNoForm("Вы уверены, что хотите закрыть программу?");
+            if (yesNoForm.ShowDialog() == DialogResult.OK)
+            {
+                e.Cancel = false;
+            }
+            else
+            {
+                e.Cancel = true;
+            }
         }
     }
 }

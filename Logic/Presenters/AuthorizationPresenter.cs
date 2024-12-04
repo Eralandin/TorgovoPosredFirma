@@ -74,6 +74,7 @@ namespace TorgovoPosredFirma.Logic.Presenters
                                         if (VerifyPassword(loginPass[1], user.PasswordHash))
                                         {
                                             _view.Message($"Попытка авторизации успешна! Роль: {user.Role}");
+                                            _view.Authorize(user);
                                         }
                                         else
                                         {

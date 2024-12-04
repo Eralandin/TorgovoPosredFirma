@@ -7,13 +7,12 @@ using TorgovoPosredFirma.Model.Classes;
 
 namespace TorgovoPosredFirma.View.Interfaces
 {
-    public interface IAuth
+    public interface IMain
     {
-        event EventHandler LoginAttempt;
-        List<string> GetLoginPassword();
+        event EventHandler fullGrant;
+        event EventHandler userAccessGrant;
         void Message(string message);
         bool YesNoForm(string message);
-        void Registration();
-        void Authorize(User user);
+        void BuildMenu(List<Module> modules);
     }
 }

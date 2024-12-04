@@ -260,11 +260,13 @@
             Controls.Add(AuthMainPanel);
             Controls.Add(RegisterBottomPanel);
             Controls.Add(RegisterTopPanel);
+            DoubleBuffered = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MinimumSize = new Size(800, 542);
             Name = "RegistrationForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Регистрация";
+            FormClosing += RegistrationForm_FormClosing;
             KeyDown += AuthorizationForm_KeyDown;
             RegisterTopPanel.ResumeLayout(false);
             RegisterTopPanel.PerformLayout();

@@ -77,7 +77,7 @@
             CancelBtn.Name = "CancelBtn";
             CancelBtn.Size = new Size(125, 40);
             CancelBtn.TabIndex = 6;
-            CancelBtn.Text = "Отмена";
+            CancelBtn.Text = "ОК";
             CancelBtn.UseVisualStyleBackColor = false;
             CancelBtn.Click += CancelBtn_Click;
             // 
@@ -99,6 +99,7 @@
             Controls.Add(MainRTB);
             Controls.Add(BottomPanel);
             Controls.Add(TopPanel);
+            DoubleBuffered = true;
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "MessageForm";
             StartPosition = FormStartPosition.CenterScreen;

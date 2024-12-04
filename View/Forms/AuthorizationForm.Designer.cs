@@ -249,11 +249,13 @@
             Controls.Add(AuthMainPanel);
             Controls.Add(AuthBottomPanel);
             Controls.Add(AuthTopPanel);
+            DoubleBuffered = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MinimumSize = new Size(800, 489);
             Name = "AuthorizationForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Авторизация";
+            FormClosing += AuthorizationForm_FormClosing;
             KeyDown += AuthorizationForm_KeyDown;
             AuthTopPanel.ResumeLayout(false);
             AuthTopPanel.PerformLayout();

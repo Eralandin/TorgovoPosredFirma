@@ -21,7 +21,7 @@ namespace TorgovoPosredFirma.View.Forms
             _presenter = new RegistrationPresenter(this);
 
             this.KeyPreview = true;
-            
+
             CapsLabel.Text = "Клавиша CapsLock: " + (Console.CapsLock ? "Включена" : "Выключена");
 
             int x1 = RegisterBottomPanel.Width - CapsLabel.Width - 5;
@@ -79,7 +79,19 @@ namespace TorgovoPosredFirma.View.Forms
         }
         public void CloseForm()
         {
-            this.Dispose();
+            this.Close();
+        }
+        private void RegistrationForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            YesNoForm yesNoForm = new YesNoForm("Вы уверены, что хотите прервать регистрацию?");
+            if (yesNoForm.ShowDialog() == DialogResult.OK)
+            {
+                e.Cancel = false;
+            }
+            else
+            {
+                e.Cancel = true;
+            }
         }
     }
 }

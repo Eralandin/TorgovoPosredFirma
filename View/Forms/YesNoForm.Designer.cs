@@ -127,6 +127,7 @@
             Controls.Add(MainPanel);
             Controls.Add(BottomPanel);
             Controls.Add(TopPanel);
+            DoubleBuffered = true;
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "YesNoForm";
             StartPosition = FormStartPosition.CenterScreen;
