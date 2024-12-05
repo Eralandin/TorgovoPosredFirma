@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TorgovoPosredFirma.Model.Classes;
 
 namespace TorgovoPosredFirma.Model.DataHelpers
 {

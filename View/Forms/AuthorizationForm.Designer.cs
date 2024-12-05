@@ -127,9 +127,9 @@
             CapsLabel.ForeColor = SystemColors.ControlLightLight;
             CapsLabel.Location = new Point(573, 12);
             CapsLabel.Name = "CapsLabel";
-            CapsLabel.Size = new Size(199, 25);
+            CapsLabel.Size = new Size(205, 25);
             CapsLabel.TabIndex = 5;
-            CapsLabel.Text = "Клавиша CapsLock:";
+            CapsLabel.Text = "Клавиша Caps Lock:";
             // 
             // LanguageLabel
             // 

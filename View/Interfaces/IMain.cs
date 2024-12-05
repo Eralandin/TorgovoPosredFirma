@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TorgovoPosredFirma.Model.Classes;
 
 namespace TorgovoPosredFirma.View.Interfaces
 {
@@ -21,5 +20,6 @@ namespace TorgovoPosredFirma.View.Interfaces
         void BuildMenu(List<Module> modules);
         void BuildMenu(List<Module> modules, User user);
         void SendConnectionString(string connectionString);
+        void OpenForm(string currentDll);
     }
 }

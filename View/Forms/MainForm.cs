@@ -11,7 +11,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TorgovoPosredFirma.Logic.Presenters;
-using TorgovoPosredFirma.Model.Classes;
 using TorgovoPosredFirma.Model.DataHelpers;
 using TorgovoPosredFirma.View.Interfaces;
 
@@ -21,11 +20,11 @@ namespace TorgovoPosredFirma.View.Forms
     {
         private readonly MainPresenter _presenter;
         private string _connectionString;
-        private string _currentTable;
-        public string CurrentTable
+        private string _currentDll;
+        public string CurrentDll
         {
-            get => _currentTable;
-            private set => _currentTable = value;
+            get => _currentDll;
+            private set => _currentDll = value;
         }
         public MainForm(User user)
         {
@@ -81,7 +80,7 @@ namespace TorgovoPosredFirma.View.Forms
                 return false;
             }
         }
-        public void BuildMenu(List<TorgovoPosredFirma.Model.Classes.Module> modules)
+        public void BuildMenu(List<SharedModels.Module> modules)
         {
             var menuItems = new Dictionary<long, ToolStripMenuItem>();
             foreach (var module in modules)
@@ -96,7 +95,7 @@ namespace TorgovoPosredFirma.View.Forms
                         // функция или dll
                         try
                         {
-                            _currentTable = module.MenuItemName;
+                            _currentDll = module.DllName;
                             string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
                             var assembly = Assembly.LoadFrom(dllPath);
 
@@ -154,7 +153,7 @@ namespace TorgovoPosredFirma.View.Forms
             MainDGV.DataSource = dataTable;
             MainDGV.Refresh();
         }
-        public void BuildMenu(List<TorgovoPosredFirma.Model.Classes.Module> modules, User user)
+        public void BuildMenu(List<SharedModels.Module> modules, User user)
         {
             var menuItems = new Dictionary<long, ToolStripMenuItem>();
             foreach (var module in modules)
@@ -162,7 +161,7 @@ namespace TorgovoPosredFirma.View.Forms
                 var menuItem = new ToolStripMenuItem(module.MenuItemName);
                 menuItem.Tag = module;
 
-                if (module.AllowRead)
+                if (!module.AllowRead)
                 {
                     continue;
                 }
@@ -174,7 +173,7 @@ namespace TorgovoPosredFirma.View.Forms
                         // функция или dll
                         try
                         {
-                            _currentTable = module.MenuItemName;
+                            _currentDll = module.DllName;
                             string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
                             var assembly = Assembly.LoadFrom(dllPath);
 
@@ -227,32 +226,70 @@ namespace TorgovoPosredFirma.View.Forms
         }
         private void AddBtn_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(_currentTable))
+            if (string.IsNullOrEmpty(_currentDll))
             {
                 Message("Не выбран пункт меню для добавления записи.");
                 return;
             }
-            AddClick?.Invoke(this, _currentTable);
+            AddClick?.Invoke(this, _currentDll);
+            MainDGV.Refresh();
         }
 
         private void UpdateBtn_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(_currentTable))
+            if (string.IsNullOrEmpty(_currentDll))
             {
                 Message("Не выбран пункт меню для изменения записи.");
                 return;
             }
-            UpdateClick?.Invoke(this, _currentTable);
+            UpdateClick?.Invoke(this, _currentDll);
+            MainDGV.Refresh();
         }
 
         private void DeleteBtn_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(_currentTable))
+            if (string.IsNullOrEmpty(_currentDll))
             {
                 Message("Не выбран пункт меню для удаления записи.");
                 return;
             }
-            DeleteClick?.Invoke(this, _currentTable);
+            DeleteClick?.Invoke(this, _currentDll);
+            MainDGV.Refresh();
+        }
+        public void OpenForm(string currentDll)
+        {
+            try
+            {
+                string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, currentDll);
+
+                var assembly = Assembly.LoadFrom(dllPath);
+
+                var formType = assembly.GetTypes().FirstOrDefault(t => t.IsSubclassOf(typeof(Form)));
+                if (formType == null)
+                {
+                    throw new Exception($"В DLL {currentDll} не найден класс, унаследованный от Form.");
+                }
+                // экземпляр
+                var formInstance = Activator.CreateInstance(formType);
+                //закинули строку подключения
+                if (formInstance is IConnectionStringConsumer consumer)
+                {
+                    consumer.SetConnectionString(_connectionString);
+                }
+
+                if (formInstance is Form form)
+                {
+                    form.ShowDialog(); 
+                }
+                else
+                {
+                    throw new Exception($"Класс {formType.Name} не является допустимой формой.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Ошибка открытия формы: {ex.Message}");
+            }
         }
     }
 }

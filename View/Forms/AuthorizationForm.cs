@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TorgovoPosredFirma.Logic.Presenters;
-using TorgovoPosredFirma.Model.Classes;
 using TorgovoPosredFirma.View.Interfaces;
 
 namespace TorgovoPosredFirma.View.Forms

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TorgovoPosredFirma.Model.Classes;
 using TorgovoPosredFirma.View.Interfaces;
 
 namespace TorgovoPosredFirma.Logic.Presenters
@@ -30,26 +29,17 @@ namespace TorgovoPosredFirma.Logic.Presenters
         {
             _view.SendConnectionString(_connectionString);
         }
-        public void AddClick(object sender, string currentTable)
+        public void AddClick(object sender, string currentDll)
         {
-            if (currentTable == "Сотрудники")
-            {
-                _view.Message("Добавление сотрудники!");
-            }
+            _view.OpenForm(currentDll);
         }
-        public void UpdateClick(object sender, string currentTable)
+        public void UpdateClick(object sender, string currentDll)
         {
-            if (currentTable == "Сотрудники")
-            {
-                _view.Message("Обновление сотрудники!");
-            }
+            _view.Message(currentDll);
         }
-        public void DeleteClick(object sender, string currentTable)
+        public void DeleteClick(object sender, string currentDll)
         {
-            if (currentTable == "Сотрудники")
-            {
-                _view.Message("Удаление сотрудники!");
-            }
+            _view.Message(currentDll);
         }
         public void FullGrant(object sender, EventArgs e)
         {
