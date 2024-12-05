@@ -11,8 +11,11 @@ namespace TorgovoPosredFirma.View.Interfaces
     {
         event EventHandler fullGrant;
         event EventHandler userAccessGrant;
+        event EventHandler GetConnectionString;
         void Message(string message);
         bool YesNoForm(string message);
         void BuildMenu(List<Module> modules);
+        void BuildMenu(List<Module> modules, User user);
+        void SendConnectionString(string connectionString);
     }
 }

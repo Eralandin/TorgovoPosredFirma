@@ -17,6 +17,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Employees">
+      <HintPath>..\Employees\bin\Debug\net8.0\Employees.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>

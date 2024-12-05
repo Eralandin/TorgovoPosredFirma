@@ -14,5 +14,6 @@ namespace TorgovoPosredFirma.Model.Classes
         public string? DllName { get; set; }
         public string? FunctionName { get; set; }
         public int SequenceNumber { get; set; }
+        public bool AllowRead {  get; set; }
     }
 }

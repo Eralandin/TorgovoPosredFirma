@@ -9,6 +9,7 @@ namespace TorgovoPosredFirma.Model.Classes
 {
     public class User
     {
+        public int Id { get; set; }
         private string username;
         private string passwordHash;
         private string role;
@@ -78,6 +79,11 @@ namespace TorgovoPosredFirma.Model.Classes
                 byte[] hashedPasswordBytes = sha256.ComputeHash(passwordBytes);
                 return Convert.ToBase64String(hashedPasswordBytes);
             }
+        }
+
+        public static explicit operator User(List<User> v)
+        {
+            throw new NotImplementedException();
         }
     }
 }

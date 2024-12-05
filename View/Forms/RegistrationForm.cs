@@ -74,12 +74,12 @@ namespace TorgovoPosredFirma.View.Forms
 
         private void CancelBtn_Click(object sender, EventArgs e)
         {
-            Message("Регистрация прекращена пользователем");
-            this.Dispose();
+            this.Close();
         }
         public void CloseForm()
         {
-            this.Close();
+            this.FormClosing -= RegistrationForm_FormClosing;
+            this.Dispose();
         }
         private void RegistrationForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -87,6 +87,7 @@ namespace TorgovoPosredFirma.View.Forms
             if (yesNoForm.ShowDialog() == DialogResult.OK)
             {
                 e.Cancel = false;
+                Message("Регистрация прекращена пользователем");
             }
             else
             {

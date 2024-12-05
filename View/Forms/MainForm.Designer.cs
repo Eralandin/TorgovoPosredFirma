@@ -28,9 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             MainMenu = new MenuStrip();
             MainPanel = new Panel();
+            MainDGV = new DataGridView();
+            MainPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)MainDGV).BeginInit();
             SuspendLayout();
             // 
             // MainMenu
@@ -45,11 +49,35 @@
             // 
             // MainPanel
             // 
+            MainPanel.Controls.Add(MainDGV);
             MainPanel.Dock = DockStyle.Fill;
             MainPanel.Location = new Point(0, 24);
             MainPanel.Name = "MainPanel";
             MainPanel.Size = new Size(800, 426);
             MainPanel.TabIndex = 1;
+            // 
+            // MainDGV
+            // 
+            MainDGV.AllowUserToAddRows = false;
+            MainDGV.AllowUserToDeleteRows = false;
+            MainDGV.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            MainDGV.BackgroundColor = SystemColors.GradientInactiveCaption;
+            MainDGV.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = SystemColors.Window;
+            dataGridViewCellStyle1.Font = new Font("Bahnschrift", 12F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            dataGridViewCellStyle1.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = Color.Firebrick;
+            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.False;
+            MainDGV.DefaultCellStyle = dataGridViewCellStyle1;
+            MainDGV.Dock = DockStyle.Fill;
+            MainDGV.GridColor = Color.Firebrick;
+            MainDGV.Location = new Point(0, 0);
+            MainDGV.Name = "MainDGV";
+            MainDGV.ReadOnly = true;
+            MainDGV.Size = new Size(800, 426);
+            MainDGV.TabIndex = 0;
             // 
             // MainForm
             // 
@@ -66,6 +94,8 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Торгово-Посредническая фирма";
             FormClosing += MainForm_FormClosing;
+            MainPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)MainDGV).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -74,5 +104,6 @@
 
         private MenuStrip MainMenu;
         private Panel MainPanel;
+        private DataGridView MainDGV;
     }
 }
