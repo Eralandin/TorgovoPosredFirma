@@ -7,6 +7,7 @@ using TorgovoPosredFirma.View.Interfaces;
 using Npgsql;
 using System.Security.Cryptography;
 using TorgovoPosredFirma.Model.Classes;
+using SharedModels;
 
 namespace TorgovoPosredFirma.Logic.Presenters
 {

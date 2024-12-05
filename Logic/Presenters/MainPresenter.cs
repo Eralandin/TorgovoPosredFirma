@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using SharedModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,12 +22,35 @@ namespace TorgovoPosredFirma.Logic.Presenters
             _view.fullGrant += FullGrant;
             _view.userAccessGrant += UserAccessGrant;
             _view.GetConnectionString += SendConnectionString;
+            _view.AddClick += AddClick;
+            _view.UpdateClick += UpdateClick;
+            _view.DeleteClick += DeleteClick;
         }
         public void SendConnectionString(object sender, EventArgs e)
         {
             _view.SendConnectionString(_connectionString);
         }
-        
+        public void AddClick(object sender, string currentTable)
+        {
+            if (currentTable == "Сотрудники")
+            {
+                _view.Message("Добавление сотрудники!");
+            }
+        }
+        public void UpdateClick(object sender, string currentTable)
+        {
+            if (currentTable == "Сотрудники")
+            {
+                _view.Message("Обновление сотрудники!");
+            }
+        }
+        public void DeleteClick(object sender, string currentTable)
+        {
+            if (currentTable == "Сотрудники")
+            {
+                _view.Message("Удаление сотрудники!");
+            }
+        }
         public void FullGrant(object sender, EventArgs e)
         {
             try
@@ -93,7 +117,8 @@ namespace TorgovoPosredFirma.Logic.Presenters
                                     MenuItemName = reader.GetString(2),
                                     DllName = reader.IsDBNull(3) ? null : reader.GetString(3),
                                     FunctionName = reader.IsDBNull(4) ? null : reader.GetString(4),
-                                    SequenceNumber = reader.GetInt32(5)
+                                    SequenceNumber = reader.GetInt32(5),
+                                    AllowRead = reader.GetBoolean(6)
                                 });
                             }
                             _view.BuildMenu(modules,_user);

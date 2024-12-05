@@ -1,4 +1,4 @@
-﻿using Employees.Services;
+﻿using SharedModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TorgovoPosredFirma.Logic.Presenters;
 using TorgovoPosredFirma.Model.Classes;
+using TorgovoPosredFirma.Model.DataHelpers;
 using TorgovoPosredFirma.View.Interfaces;
 
 namespace TorgovoPosredFirma.View.Forms
@@ -20,6 +21,12 @@ namespace TorgovoPosredFirma.View.Forms
     {
         private readonly MainPresenter _presenter;
         private string _connectionString;
+        private string _currentTable;
+        public string CurrentTable
+        {
+            get => _currentTable;
+            private set => _currentTable = value;
+        }
         public MainForm(User user)
         {
             InitializeComponent();
@@ -37,6 +44,9 @@ namespace TorgovoPosredFirma.View.Forms
         public event EventHandler fullGrant;
         public event EventHandler userAccessGrant;
         public event EventHandler GetConnectionString;
+        public event EventHandler<string> AddClick;
+        public event EventHandler<string> UpdateClick;
+        public event EventHandler<string> DeleteClick;
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -86,6 +96,7 @@ namespace TorgovoPosredFirma.View.Forms
                         // функция или dll
                         try
                         {
+                            _currentTable = module.MenuItemName;
                             string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
                             var assembly = Assembly.LoadFrom(dllPath);
 
@@ -93,25 +104,24 @@ namespace TorgovoPosredFirma.View.Forms
                             if (type != null)
                             {
                                 GetConnectionString?.Invoke(this, EventArgs.Empty);
-                                var instance = Activator.CreateInstance(type, new object[] {_connectionString});
+                                var instance = Activator.CreateInstance(type, new object[] { _connectionString });
                                 var method = type.GetMethod(module.FunctionName);
                                 if (method != null)
                                 {
                                     var result = method.Invoke(instance, null);
-
-                                    if (result is List<Employees.Models.User> users)
+                                    if (result != null)
                                     {
-                                        var dataTable = DataTableAdapter.DataTableAdaptUsers(users);
+                                        var dataTable = DataTableAdapter.AdaptToDataTable(result as IEnumerable<object>);
                                         ShowDataInGrid(dataTable);
                                     }
                                     else
                                     {
-                                        MessageBox.Show("Метод выполнен, но данные не возвращены.");
+                                        throw new Exception("Метод сработал, однако данные не были возвращены.");
                                     }
                                 }
                                 else
                                 {
-                                    MessageBox.Show($"Метод {module.FunctionName} не найден в классе UserService.");
+                                    throw new Exception($"Метод {module.FunctionName} не найден в классе UserService.");
                                 }
                             }
                             else
@@ -139,6 +149,8 @@ namespace TorgovoPosredFirma.View.Forms
         }
         private void ShowDataInGrid(DataTable dataTable)
         {
+            MainDGV.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+            MainDGV.AutoSize = true;
             MainDGV.DataSource = dataTable;
             MainDGV.Refresh();
         }
@@ -147,23 +159,61 @@ namespace TorgovoPosredFirma.View.Forms
             var menuItems = new Dictionary<long, ToolStripMenuItem>();
             foreach (var module in modules)
             {
-                if (!module.AllowRead)
+                var menuItem = new ToolStripMenuItem(module.MenuItemName);
+                menuItem.Tag = module;
+
+                if (module.AllowRead)
                 {
                     continue;
                 }
-                var menuItem = new ToolStripMenuItem(module.MenuItemName);
-                menuItem.Tag = module;
 
                 if (module.DllName != null && module.FunctionName != null)
                 {
                     menuItem.Click += (s, e) =>
                     {
                         // функция или dll
-                        Message($"Попытка вызова: {module.FunctionName} in {module.DllName}");
+                        try
+                        {
+                            _currentTable = module.MenuItemName;
+                            string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
+                            var assembly = Assembly.LoadFrom(dllPath);
+
+                            var type = assembly.GetTypes().FirstOrDefault(t => t.GetMethod(module.FunctionName) != null);
+                            if (type != null)
+                            {
+                                GetConnectionString?.Invoke(this, EventArgs.Empty);
+                                var instance = Activator.CreateInstance(type, new object[] { _connectionString });
+                                var method = type.GetMethod(module.FunctionName);
+                                if (method != null)
+                                {
+                                    var result = method.Invoke(instance, null);
+                                    if (result != null)
+                                    {
+                                        var dataTable = DataTableAdapter.AdaptToDataTable(result as IEnumerable<object>);
+                                        ShowDataInGrid(dataTable);
+                                    }
+                                    else
+                                    {
+                                        throw new Exception("Метод сработал, однако данные не были возвращены.");
+                                    }
+                                }
+                                else
+                                {
+                                    throw new Exception($"Метод {module.FunctionName} не найден в DLL {module.DllName}.");
+                                }
+                            }
+                            else
+                            {
+                                throw new Exception($"Метод {module.FunctionName} не найден в DLL {module.DllName}.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Message("Ошибка вызова функции: " + ex.ToString());
+                        }
                     };
                 }
                 menuItems[module.Id] = menuItem;
-
                 if (module.IdParent == 0) // высшая иерархия элемент
                 {
                     menuItem.ForeColor = Color.White;
@@ -174,6 +224,35 @@ namespace TorgovoPosredFirma.View.Forms
                     parentMenuItem.DropDownItems.Add(menuItem);
                 }
             }
+        }
+        private void AddBtn_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_currentTable))
+            {
+                Message("Не выбран пункт меню для добавления записи.");
+                return;
+            }
+            AddClick?.Invoke(this, _currentTable);
+        }
+
+        private void UpdateBtn_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_currentTable))
+            {
+                Message("Не выбран пункт меню для изменения записи.");
+                return;
+            }
+            UpdateClick?.Invoke(this, _currentTable);
+        }
+
+        private void DeleteBtn_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_currentTable))
+            {
+                Message("Не выбран пункт меню для удаления записи.");
+                return;
+            }
+            DeleteClick?.Invoke(this, _currentTable);
         }
     }
 }

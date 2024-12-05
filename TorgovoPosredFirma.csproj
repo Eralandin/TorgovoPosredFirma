@@ -9,16 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Model\DataHelpers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Npgsql" Version="9.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Employees">
       <HintPath>..\Employees\bin\Debug\net8.0\Employees.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SharedModels">
+      <HintPath>..\SharedModels\bin\Debug\net8.0\SharedModels.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
