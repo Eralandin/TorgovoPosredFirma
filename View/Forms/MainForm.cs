@@ -21,6 +21,7 @@ namespace TorgovoPosredFirma.View.Forms
         private readonly MainPresenter _presenter;
         private string _connectionString;
         private string _currentDll;
+        private User _currentUser;
         public string CurrentDll
         {
             get => _currentDll;
@@ -30,6 +31,7 @@ namespace TorgovoPosredFirma.View.Forms
         {
             InitializeComponent();
             _presenter = new MainPresenter(this, user);
+            _currentUser = user;
             if (user.Role == "Администратор")
             {
                 fullGrant?.Invoke(this, new EventArgs());
@@ -83,6 +85,7 @@ namespace TorgovoPosredFirma.View.Forms
         public void BuildMenu(List<SharedModels.Module> modules)
         {
             var menuItems = new Dictionary<long, ToolStripMenuItem>();
+
             foreach (var module in modules)
             {
                 var menuItem = new ToolStripMenuItem(module.MenuItemName);
@@ -103,7 +106,7 @@ namespace TorgovoPosredFirma.View.Forms
                             if (type != null)
                             {
                                 GetConnectionString?.Invoke(this, EventArgs.Empty);
-                                var instance = Activator.CreateInstance(type, new object[] { _connectionString });
+                                var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser });
                                 var method = type.GetMethod(module.FunctionName);
                                 if (method != null)
                                 {
@@ -153,52 +156,79 @@ namespace TorgovoPosredFirma.View.Forms
             MainDGV.DataSource = dataTable;
             MainDGV.Refresh();
         }
-        public void BuildMenu(List<SharedModels.Module> modules, User user)
+        public void BuildMenu(List<SharedModels.Module> modules, List<Role> userRoles)
         {
             var menuItems = new Dictionary<long, ToolStripMenuItem>();
+            var rolesDict = userRoles.ToDictionary(r => r.MenuItemId);
+
             foreach (var module in modules)
             {
                 var menuItem = new ToolStripMenuItem(module.MenuItemName);
                 menuItem.Tag = module;
 
-                if (!module.AllowRead)
+                // Если модуль обязательный, пропускаем проверку доступов
+                if (module.IsNecessary)
                 {
+                    AddMenuItem(menuItems, module, menuItem, null);
                     continue;
                 }
 
-                if (module.DllName != null && module.FunctionName != null)
-                {
-                    menuItem.Click += (s, e) =>
-                    {
-                        // функция или dll
-                        try
-                        {
-                            _currentDll = module.DllName;
-                            string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
-                            var assembly = Assembly.LoadFrom(dllPath);
+                // Определение ролей для текущего модуля
+                var parentRole = module.IdParent != 0 && rolesDict.TryGetValue(module.IdParent, out var parent)
+                    ? parent
+                    : null;
+                var moduleRole = rolesDict.TryGetValue(module.Id, out var role) ? role : null;
 
-                            var type = assembly.GetTypes().FirstOrDefault(t => t.GetMethod(module.FunctionName) != null);
-                            if (type != null)
+                // Если есть родительский модуль, наследуем его доступы
+                if (parentRole != null)
+                {
+                    moduleRole = new Role
+                    {
+                        AllowRead = parentRole.AllowRead,
+                        AllowWrite = parentRole.AllowWrite,
+                        AllowEdit = parentRole.AllowEdit,
+                        AllowDelete = parentRole.AllowDelete
+                    };
+                }
+
+                // Пропускаем модуль, если у него нет разрешения на чтение
+                if (moduleRole == null || !moduleRole.AllowRead) continue;
+
+                AddMenuItem(menuItems, module, menuItem, moduleRole);
+            }
+        }
+        private void AddMenuItem(Dictionary<long, ToolStripMenuItem> menuItems, SharedModels.Module module, ToolStripMenuItem menuItem, Role moduleRole)
+        {
+            if (module.DllName != null && module.FunctionName != null)
+            {
+                menuItem.Click += (s, e) =>
+                {
+                    // Вызов метода из DLL
+                    try
+                    {
+                        _currentDll = module.DllName;
+                        string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
+                        var assembly = Assembly.LoadFrom(dllPath);
+
+                        var type = assembly.GetTypes().FirstOrDefault(t => t.GetMethod(module.FunctionName) != null);
+                        if (type != null)
+                        {
+                            GetConnectionString?.Invoke(this, EventArgs.Empty);
+                            var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser });
+                            var method = type.GetMethod(module.FunctionName);
+                            if (method != null)
                             {
-                                GetConnectionString?.Invoke(this, EventArgs.Empty);
-                                var instance = Activator.CreateInstance(type, new object[] { _connectionString });
-                                var method = type.GetMethod(module.FunctionName);
-                                if (method != null)
+                                var result = method.Invoke(instance, null);
+                                if (result != null && result is IEnumerable<object>)
                                 {
-                                    var result = method.Invoke(instance, null);
-                                    if (result != null)
+                                    var dataTable = DataTableAdapter.AdaptToDataTable(result as IEnumerable<object>);
+                                    if (moduleRole != null)
                                     {
-                                        var dataTable = DataTableAdapter.AdaptToDataTable(result as IEnumerable<object>);
-                                        ShowDataInGrid(dataTable);
+                                        AddBtn.Enabled = moduleRole.AllowWrite;
+                                        UpdateBtn.Enabled = moduleRole.AllowEdit;
+                                        DeleteBtn.Enabled = moduleRole.AllowDelete;
                                     }
-                                    else
-                                    {
-                                        throw new Exception("Метод сработал, однако данные не были возвращены.");
-                                    }
-                                }
-                                else
-                                {
-                                    throw new Exception($"Метод {module.FunctionName} не найден в DLL {module.DllName}.");
+                                    ShowDataInGrid(dataTable);
                                 }
                             }
                             else
@@ -206,22 +236,29 @@ namespace TorgovoPosredFirma.View.Forms
                                 throw new Exception($"Метод {module.FunctionName} не найден в DLL {module.DllName}.");
                             }
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            Message("Ошибка вызова функции: " + ex.ToString());
+                            throw new Exception($"Метод {module.FunctionName} не найден в DLL {module.DllName}.");
                         }
-                    };
-                }
-                menuItems[module.Id] = menuItem;
-                if (module.IdParent == 0) // высшая иерархия элемент
-                {
-                    menuItem.ForeColor = Color.White;
-                    MainMenu.Items.Add(menuItem);
-                }
-                else if (menuItems.TryGetValue(module.IdParent, out var parentMenuItem))
-                {
-                    parentMenuItem.DropDownItems.Add(menuItem);
-                }
+                    }
+                    catch (Exception ex)
+                    {
+                        Message("Ошибка вызова функции: " + ex.ToString());
+                    }
+                };
+            }
+
+            menuItems[module.Id] = menuItem;
+
+            // Добавление в главное меню или вложение в родительский элемент
+            if (module.IdParent == 0) // высшая иерархия элемент
+            {
+                menuItem.ForeColor = Color.White;
+                MainMenu.Items.Add(menuItem);
+            }
+            else if (menuItems.TryGetValue(module.IdParent, out var parentMenuItem))
+            {
+                parentMenuItem.DropDownItems.Add(menuItem);
             }
         }
         private void AddBtn_Click(object sender, EventArgs e)
@@ -253,10 +290,14 @@ namespace TorgovoPosredFirma.View.Forms
                 Message("Не выбран пункт меню для удаления записи.");
                 return;
             }
-            DeleteClick?.Invoke(this, _currentDll);
-            MainDGV.Refresh();
+            
+            if(MainDGV.SelectedCells.Count > 0)
+            {
+                DeleteClick?.Invoke(this, _currentDll);
+                MainDGV.Refresh();
+            }
         }
-        public void OpenForm(string currentDll)
+        public void OpenForm(string currentDll, string typeOfOpen)
         {
             try
             {
@@ -275,6 +316,28 @@ namespace TorgovoPosredFirma.View.Forms
                 if (formInstance is IConnectionStringConsumer consumer)
                 {
                     consumer.SetConnectionString(_connectionString);
+                    if (MainDGV.SelectedCells.Count > 0) 
+                    {
+                        var cellValue = MainDGV.Rows[MainDGV.SelectedCells[0].RowIndex].Cells[0].Value; 
+
+                        if (cellValue != null && !string.IsNullOrEmpty(cellValue.ToString())) 
+                        {
+                            consumer.SetOpenType(typeOfOpen, int.Parse(cellValue.ToString()));
+                            if (typeOfOpen == "Delete")
+                            {
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            consumer.SetOpenType(typeOfOpen, null);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Пожалуйста, выберите ячейку.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
                 }
 
                 if (formInstance is Form form)

@@ -18,8 +18,8 @@ namespace TorgovoPosredFirma.View.Interfaces
         void Message(string message);
         bool YesNoForm(string message);
         void BuildMenu(List<Module> modules);
-        void BuildMenu(List<Module> modules, User user);
+        void BuildMenu(List<Module> modules, List<Role> userRoles);
         void SendConnectionString(string connectionString);
-        void OpenForm(string currentDll);
+        void OpenForm(string currentDll, string typeOfOpen);
     }
 }

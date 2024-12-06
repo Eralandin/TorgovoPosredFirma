@@ -150,6 +150,7 @@
             MainDGV.Dock = DockStyle.Fill;
             MainDGV.GridColor = Color.Firebrick;
             MainDGV.Location = new Point(0, 0);
+            MainDGV.MultiSelect = false;
             MainDGV.Name = "MainDGV";
             MainDGV.ReadOnly = true;
             MainDGV.Size = new Size(800, 426);
