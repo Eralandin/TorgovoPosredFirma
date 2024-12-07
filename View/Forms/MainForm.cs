@@ -32,7 +32,7 @@ namespace TorgovoPosredFirma.View.Forms
             InitializeComponent();
             _presenter = new MainPresenter(this, user);
             _currentUser = user;
-            if (user.Role == "Администратор")
+            if (user.IsAdmin == true)
             {
                 fullGrant?.Invoke(this, new EventArgs());
             }
@@ -49,18 +49,6 @@ namespace TorgovoPosredFirma.View.Forms
         public event EventHandler<string> UpdateClick;
         public event EventHandler<string> DeleteClick;
 
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            YesNoForm yesNoForm = new YesNoForm("Вы уверены, что хотите закрыть это окно?");
-            if (yesNoForm.ShowDialog() == DialogResult.OK)
-            {
-                e.Cancel = false;
-            }
-            else
-            {
-                e.Cancel = true;
-            }
-        }
         public void SendConnectionString(string connectionString)
         {
             _connectionString = connectionString;
@@ -106,19 +94,15 @@ namespace TorgovoPosredFirma.View.Forms
                             if (type != null)
                             {
                                 GetConnectionString?.Invoke(this, EventArgs.Empty);
-                                var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser });
+                                var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser, this});
                                 var method = type.GetMethod(module.FunctionName);
                                 if (method != null)
                                 {
                                     var result = method.Invoke(instance, null);
-                                    if (result != null)
+                                    if (result != null && result is IEnumerable<object>)
                                     {
                                         var dataTable = DataTableAdapter.AdaptToDataTable(result as IEnumerable<object>);
                                         ShowDataInGrid(dataTable);
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Метод сработал, однако данные не были возвращены.");
                                     }
                                 }
                                 else
@@ -160,26 +144,28 @@ namespace TorgovoPosredFirma.View.Forms
         {
             var menuItems = new Dictionary<long, ToolStripMenuItem>();
             var rolesDict = userRoles.ToDictionary(r => r.MenuItemId);
+            var moduleDict = modules.ToDictionary(m => m.Id);
 
             foreach (var module in modules)
             {
+                module.IsNecessary = InheritIsNecessary(module, moduleDict);
                 var menuItem = new ToolStripMenuItem(module.MenuItemName);
                 menuItem.Tag = module;
 
-                // Если модуль обязательный, пропускаем проверку доступов
+                // если модуль обязательный
                 if (module.IsNecessary)
                 {
                     AddMenuItem(menuItems, module, menuItem, null);
                     continue;
                 }
 
-                // Определение ролей для текущего модуля
+                // определяем текущие роли
                 var parentRole = module.IdParent != 0 && rolesDict.TryGetValue(module.IdParent, out var parent)
                     ? parent
                     : null;
                 var moduleRole = rolesDict.TryGetValue(module.Id, out var role) ? role : null;
 
-                // Если есть родительский модуль, наследуем его доступы
+                // наследуем доступы у родительского модуля
                 if (parentRole != null)
                 {
                     moduleRole = new Role
@@ -187,15 +173,27 @@ namespace TorgovoPosredFirma.View.Forms
                         AllowRead = parentRole.AllowRead,
                         AllowWrite = parentRole.AllowWrite,
                         AllowEdit = parentRole.AllowEdit,
-                        AllowDelete = parentRole.AllowDelete
+                        AllowDelete = parentRole.AllowDelete,
                     };
                 }
 
-                // Пропускаем модуль, если у него нет разрешения на чтение
+                // пропуск модуля без прав на чтение
                 if (moduleRole == null || !moduleRole.AllowRead) continue;
 
                 AddMenuItem(menuItems, module, menuItem, moduleRole);
             }
+        }
+        private bool InheritIsNecessary(SharedModels.Module module, Dictionary<long, SharedModels.Module> moduleDict)
+        {
+            if (module.IsNecessary) return true;
+
+            // проверка родительского модуля
+            if (module.IdParent != 0 && moduleDict.TryGetValue(module.IdParent, out var parentModule))
+            {
+                return InheritIsNecessary(parentModule, moduleDict);
+            }
+
+            return false;
         }
         private void AddMenuItem(Dictionary<long, ToolStripMenuItem> menuItems, SharedModels.Module module, ToolStripMenuItem menuItem, Role moduleRole)
         {
@@ -214,7 +212,7 @@ namespace TorgovoPosredFirma.View.Forms
                         if (type != null)
                         {
                             GetConnectionString?.Invoke(this, EventArgs.Empty);
-                            var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser });
+                            var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser, this});
                             var method = type.GetMethod(module.FunctionName);
                             if (method != null)
                             {
@@ -322,7 +320,7 @@ namespace TorgovoPosredFirma.View.Forms
 
                         if (cellValue != null && !string.IsNullOrEmpty(cellValue.ToString())) 
                         {
-                            consumer.SetOpenType(typeOfOpen, int.Parse(cellValue.ToString()));
+                            consumer.SetOpenType(typeOfOpen, int.Parse(cellValue.ToString()), _currentUser.IsAdmin);
                             if (typeOfOpen == "Delete")
                             {
                                 return;
@@ -330,7 +328,7 @@ namespace TorgovoPosredFirma.View.Forms
                         }
                         else
                         {
-                            consumer.SetOpenType(typeOfOpen, null);
+                            consumer.SetOpenType(typeOfOpen, null, _currentUser.IsAdmin);
                         }
                     }
                     else

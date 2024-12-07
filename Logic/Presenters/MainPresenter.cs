@@ -13,6 +13,7 @@ namespace TorgovoPosredFirma.Logic.Presenters
 {
     public class MainPresenter
     {
+        public IConnectionStringConsumer _connectionStringConsumer;
         string _connectionString = "Host = localhost;Username = postgres;Password = admin;Port = 5432;Database = postgres;";
         private readonly IMain _view;
         private User _user;
@@ -149,9 +150,6 @@ namespace TorgovoPosredFirma.Logic.Presenters
                     }
                 }
 
-                // Фильтрация обязательных модулей
-                var necessaryModules = modules.Where(m => m.IsNecessary).ToList();
-                // Вызываем обновленный метод BuildMenu с модулями и ролями
                 _view.BuildMenu(modules, userRoles);
             }
             catch (Exception ex)

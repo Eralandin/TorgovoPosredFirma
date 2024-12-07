@@ -57,7 +57,7 @@ namespace TorgovoPosredFirma.Logic.Presenters
                         }
                         else
                         {
-                            string query = "SELECT id, username, password_hash, user_role FROM tbUsers WHERE username = @Username";
+                            string query = "SELECT id, username, password_hash, user_role, isadmin FROM tbUsers WHERE username = @Username";
                             using (var command = new NpgsqlCommand(query, connection))
                             {
                                 command.Parameters.AddWithValue("Username", loginPass[0]);
@@ -70,7 +70,8 @@ namespace TorgovoPosredFirma.Logic.Presenters
                                             Id = reader.GetInt32(0),
                                             Username = reader.GetString(1),
                                             PasswordHash = reader.GetString(2),
-                                            Role = reader.GetString(3)
+                                            Role = reader.GetString(3),
+                                            IsAdmin = reader.GetBoolean(4)
                                         };
                                         if (VerifyPassword(loginPass[1], user.PasswordHash))
                                         {

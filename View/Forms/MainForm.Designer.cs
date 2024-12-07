@@ -170,7 +170,6 @@
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Торгово-Посредническая фирма";
-            FormClosing += MainForm_FormClosing;
             MainPanel.ResumeLayout(false);
             BottomPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)NSTULogo).EndInit();

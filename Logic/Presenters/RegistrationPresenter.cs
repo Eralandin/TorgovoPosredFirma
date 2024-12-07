@@ -47,15 +47,17 @@ namespace TorgovoPosredFirma.Logic.Presenters
                     {
                         Username = loginPass[0],
                         PasswordHash = loginPass[1],
-                        Role = "Администратор"
+                        Role = "Администратор",
+                        IsAdmin = true
                     };
                     string hashedPass = User.HashPassword(newUser.PasswordHash);
-                    string query = "INSERT INTO tbUsers (username,password_hash,user_role) VALUES (@Username, @PasswordHash, @Role)";
+                    string query = "INSERT INTO tbUsers (username,password_hash,user_role, isadmin) VALUES (@Username, @PasswordHash, @Role, @IsAdmin)";
                     using (var command = new NpgsqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("Username",newUser.Username);
                         command.Parameters.AddWithValue("PasswordHash", hashedPass);
                         command.Parameters.AddWithValue("Role",newUser.Role);
+                        command.Parameters.AddWithValue("IsAdmin", newUser.IsAdmin);
                         command.ExecuteNonQuery();
                     }
                     _view.Message("Первичный пользователь успешно зарегистрирован, как администратор!");
@@ -65,18 +67,6 @@ namespace TorgovoPosredFirma.Logic.Presenters
             catch(Exception ex)
             {
                 _view.Message("Непредвиденная ошибка! "+ex.Message);
-            }
-        }
-        public static bool VerifyPassword(string unknownPassword, string knownPasswordHash)
-        {
-            string unknownPasswordHash = User.HashPassword(unknownPassword);
-            if (unknownPasswordHash != knownPasswordHash)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
             }
         }
     }
