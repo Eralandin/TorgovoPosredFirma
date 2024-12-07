@@ -21,6 +21,7 @@ namespace TorgovoPosredFirma.View.Forms
         private readonly MainPresenter _presenter;
         private string _connectionString;
         private string _currentDll;
+        private string _currentMethod;
         private User _currentUser;
         public string CurrentDll
         {
@@ -205,6 +206,7 @@ namespace TorgovoPosredFirma.View.Forms
                     try
                     {
                         _currentDll = module.DllName;
+                        _currentMethod = module.FunctionName;
                         string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
                         var assembly = Assembly.LoadFrom(dllPath);
 
@@ -267,7 +269,7 @@ namespace TorgovoPosredFirma.View.Forms
                 return;
             }
             AddClick?.Invoke(this, _currentDll);
-            MainDGV.Refresh();
+            RefreshData();
         }
 
         private void UpdateBtn_Click(object sender, EventArgs e)
@@ -278,7 +280,7 @@ namespace TorgovoPosredFirma.View.Forms
                 return;
             }
             UpdateClick?.Invoke(this, _currentDll);
-            MainDGV.Refresh();
+            RefreshData();
         }
 
         private void DeleteBtn_Click(object sender, EventArgs e)
@@ -292,7 +294,32 @@ namespace TorgovoPosredFirma.View.Forms
             if(MainDGV.SelectedCells.Count > 0)
             {
                 DeleteClick?.Invoke(this, _currentDll);
-                MainDGV.Refresh();
+                RefreshData();
+            }
+        }
+        private void RefreshData()
+        {
+            string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _currentDll);
+            var assembly = Assembly.LoadFrom(dllPath);
+            var type = assembly.GetTypes().FirstOrDefault(t => t.GetMethod(_currentMethod) != null);
+            if (type != null)
+            {
+                GetConnectionString?.Invoke(this, EventArgs.Empty);
+                var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser, this });
+                var method = type.GetMethod(_currentMethod);
+                if (method != null)
+                {
+                    var result = method.Invoke(instance, null);
+                    if (result != null && result is IEnumerable<object>)
+                    {
+                        var dataTable = DataTableAdapter.AdaptToDataTable(result as IEnumerable<object>);
+                        ShowDataInGrid(dataTable);
+                    }
+                }
+                else
+                {
+                    throw new Exception($"Метод {_currentMethod} не найден в DLL {_currentDll}.");
+                }
             }
         }
         public void OpenForm(string currentDll, string typeOfOpen)

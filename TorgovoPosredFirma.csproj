@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="AccountingUnits">
+      <HintPath>..\AccountingUnits\bin\Debug\net8.0-windows\AccountingUnits.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Employees">
       <HintPath>..\Employees\bin\Debug\net8.0-windows\Employees.dll</HintPath>
       <Private>True</Private>
