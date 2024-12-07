@@ -88,6 +88,7 @@ namespace TorgovoPosredFirma.View.Forms
                         try
                         {
                             _currentDll = module.DllName;
+                            _currentMethod = module.FunctionName;
                             string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
                             var assembly = Assembly.LoadFrom(dllPath);
 
