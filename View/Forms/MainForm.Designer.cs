@@ -34,6 +34,8 @@
             MainPanel = new Panel();
             MainDGV = new DataGridView();
             BottomPanel = new Panel();
+            SearchBtn = new Button();
+            SearchTextBox = new TextBox();
             NSTULogo = new PictureBox();
             AddBtn = new Button();
             UpdateBtn = new Button();
@@ -50,7 +52,7 @@
             MainMenu.Font = new Font("Bahnschrift", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 204);
             MainMenu.Location = new Point(0, 0);
             MainMenu.Name = "MainMenu";
-            MainMenu.Size = new Size(800, 24);
+            MainMenu.Size = new Size(1099, 24);
             MainMenu.TabIndex = 0;
             MainMenu.Text = "Главное Меню";
             // 
@@ -61,7 +63,7 @@
             MainPanel.Dock = DockStyle.Fill;
             MainPanel.Location = new Point(0, 24);
             MainPanel.Name = "MainPanel";
-            MainPanel.Size = new Size(800, 426);
+            MainPanel.Size = new Size(1099, 492);
             MainPanel.TabIndex = 1;
             // 
             // MainDGV
@@ -88,26 +90,51 @@
             MainDGV.MultiSelect = false;
             MainDGV.Name = "MainDGV";
             MainDGV.ReadOnly = true;
-            MainDGV.Size = new Size(800, 371);
+            MainDGV.Size = new Size(1099, 422);
             MainDGV.TabIndex = 0;
             // 
             // BottomPanel
             // 
             BottomPanel.BackColor = Color.ForestGreen;
+            BottomPanel.Controls.Add(SearchBtn);
+            BottomPanel.Controls.Add(SearchTextBox);
             BottomPanel.Controls.Add(NSTULogo);
             BottomPanel.Controls.Add(AddBtn);
             BottomPanel.Controls.Add(UpdateBtn);
             BottomPanel.Controls.Add(DeleteBtn);
             BottomPanel.Dock = DockStyle.Bottom;
-            BottomPanel.Location = new Point(0, 371);
+            BottomPanel.Location = new Point(0, 422);
             BottomPanel.Name = "BottomPanel";
-            BottomPanel.Size = new Size(800, 55);
+            BottomPanel.Size = new Size(1099, 70);
             BottomPanel.TabIndex = 1;
+            // 
+            // SearchBtn
+            // 
+            SearchBtn.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            SearchBtn.BackColor = SystemColors.ControlLightLight;
+            SearchBtn.Font = new Font("Bahnschrift", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            SearchBtn.ForeColor = SystemColors.ActiveCaptionText;
+            SearchBtn.Location = new Point(118, 3);
+            SearchBtn.Name = "SearchBtn";
+            SearchBtn.Size = new Size(159, 60);
+            SearchBtn.TabIndex = 5;
+            SearchBtn.Text = "Поиск";
+            SearchBtn.UseVisualStyleBackColor = false;
+            SearchBtn.Click += SearchBtn_Click;
+            // 
+            // SearchTextBox
+            // 
+            SearchTextBox.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            SearchTextBox.Font = new Font("Bahnschrift", 20.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            SearchTextBox.Location = new Point(283, 15);
+            SearchTextBox.Name = "SearchTextBox";
+            SearchTextBox.Size = new Size(315, 40);
+            SearchTextBox.TabIndex = 4;
             // 
             // NSTULogo
             // 
             NSTULogo.Image = Resource.Логотип_НГТУ_НЭТИ;
-            NSTULogo.Location = new Point(5, 3);
+            NSTULogo.Location = new Point(12, 8);
             NSTULogo.Name = "NSTULogo";
             NSTULogo.Size = new Size(100, 50);
             NSTULogo.SizeMode = PictureBoxSizeMode.Zoom;
@@ -120,9 +147,9 @@
             AddBtn.BackColor = SystemColors.ControlLightLight;
             AddBtn.Font = new Font("Bahnschrift", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 204);
             AddBtn.ForeColor = SystemColors.ActiveCaptionText;
-            AddBtn.Location = new Point(437, 8);
+            AddBtn.Location = new Point(604, 3);
             AddBtn.Name = "AddBtn";
-            AddBtn.Size = new Size(115, 40);
+            AddBtn.Size = new Size(159, 60);
             AddBtn.TabIndex = 2;
             AddBtn.Text = "Добавить";
             AddBtn.UseVisualStyleBackColor = false;
@@ -134,9 +161,9 @@
             UpdateBtn.BackColor = SystemColors.ControlLightLight;
             UpdateBtn.Font = new Font("Bahnschrift", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 204);
             UpdateBtn.ForeColor = SystemColors.ActiveCaptionText;
-            UpdateBtn.Location = new Point(558, 8);
+            UpdateBtn.Location = new Point(769, 3);
             UpdateBtn.Name = "UpdateBtn";
-            UpdateBtn.Size = new Size(115, 40);
+            UpdateBtn.Size = new Size(159, 60);
             UpdateBtn.TabIndex = 1;
             UpdateBtn.Text = "Изменить";
             UpdateBtn.UseVisualStyleBackColor = false;
@@ -148,9 +175,9 @@
             DeleteBtn.BackColor = SystemColors.ControlLightLight;
             DeleteBtn.Font = new Font("Bahnschrift", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 204);
             DeleteBtn.ForeColor = SystemColors.ActiveCaptionText;
-            DeleteBtn.Location = new Point(679, 8);
+            DeleteBtn.Location = new Point(934, 3);
             DeleteBtn.Name = "DeleteBtn";
-            DeleteBtn.Size = new Size(115, 40);
+            DeleteBtn.Size = new Size(159, 60);
             DeleteBtn.TabIndex = 0;
             DeleteBtn.Text = "Удалить";
             DeleteBtn.UseVisualStyleBackColor = false;
@@ -161,19 +188,20 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(1099, 516);
             Controls.Add(MainPanel);
             Controls.Add(MainMenu);
             DoubleBuffered = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = MainMenu;
-            MinimumSize = new Size(816, 489);
+            MinimumSize = new Size(1115, 555);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Торгово-Посредническая фирма";
             MainPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)MainDGV).EndInit();
             BottomPanel.ResumeLayout(false);
+            BottomPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)NSTULogo).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -189,5 +217,7 @@
         private Button AddBtn;
         private Button UpdateBtn;
         private PictureBox NSTULogo;
+        private Button SearchBtn;
+        private TextBox SearchTextBox;
     }
 }

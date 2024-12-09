@@ -43,7 +43,7 @@ namespace TorgovoPosredFirma.View.Forms
 
             InputLanguageChanged += AuthForm_InputLanguageChanged;
         }
-
+        
         public event EventHandler LoginAttempt;
 
         private void AuthForm_InputLanguageChanged(object sender, InputLanguageChangedEventArgs e)

@@ -48,7 +48,7 @@ namespace TorgovoPosredFirma.Logic.Presenters
         {
             try
             {
-                string grantQuery = "SELECT id, id_parent, menuitem_name, dll_name, function_name, sequence_number FROM public.tbmodules ORDER BY id_parent, sequence_number;";
+                string grantQuery = "SELECT id, id_parent, menuitem_name, dll_name, function_name, sequence_number, ismethodtakeable FROM public.tbmodules ORDER BY id_parent, sequence_number;";
                 using (var connection = new NpgsqlConnection(_connectionString))
                 {
                     var modules = new List<SharedModels.Module>();
@@ -70,7 +70,8 @@ namespace TorgovoPosredFirma.Logic.Presenters
                                     MenuItemName = reader.GetString(2),
                                     DllName = reader.IsDBNull(3) ? null : reader.GetString(3),
                                     FunctionName = reader.IsDBNull(4) ? null : reader.GetString(4),
-                                    SequenceNumber = reader.GetInt32(5)
+                                    SequenceNumber = reader.GetInt32(5),
+                                    IsMethodTakeable = reader.GetBoolean(6)
                                 });
                             }
                             _view.BuildMenu(modules);
@@ -117,7 +118,7 @@ namespace TorgovoPosredFirma.Logic.Presenters
                 // Список модулей (пунктов меню)
                 string grantQuery = @"
             SELECT m.id, m.id_parent, m.menuitem_name, m.dll_name, m.function_name, m.sequence_number, 
-                   COALESCE(r.allow_read, false) AS allow_read, m.isnecessary
+                   COALESCE(r.allow_read, false) AS allow_read, m.isnecessary, ismethodtakeable
             FROM public.tbmodules m
             LEFT JOIN public.tbroles r 
             ON m.id = r.id_menuitem AND r.id_user = @UserId
@@ -143,7 +144,8 @@ namespace TorgovoPosredFirma.Logic.Presenters
                                     FunctionName = reader.IsDBNull(4) ? null : reader.GetString(4),
                                     SequenceNumber = reader.GetInt32(5),
                                     AllowRead = reader.GetBoolean(6),
-                                    IsNecessary = reader.GetBoolean(7)
+                                    IsNecessary = reader.GetBoolean(7),
+                                    IsMethodTakeable = reader.GetBoolean(8)
                                 });
                             }
                         }

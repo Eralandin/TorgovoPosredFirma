@@ -21,6 +21,7 @@ namespace TorgovoPosredFirma.View.Forms
         private readonly MainPresenter _presenter;
         private string _connectionString;
         private string _currentDll;
+        private string _currentNottakeableDll;
         private string _currentMethod;
         private User _currentUser;
         private float FontSize;
@@ -43,7 +44,6 @@ namespace TorgovoPosredFirma.View.Forms
             {
                 userAccessGrant?.Invoke(this, new EventArgs());
             }
-
         }
         public void ChangeFontSizeInForm(Control? parent, float newSize)
         {
@@ -111,7 +111,14 @@ namespace TorgovoPosredFirma.View.Forms
                         // функция или dll
                         try
                         {
-                            _currentDll = module.DllName;
+                            if (module.IsMethodTakeable == true)
+                            {
+                                _currentDll = module.DllName;
+                            }
+                            else
+                            {
+                                _currentNottakeableDll = module.DllName;
+                            }
                             string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
                             var assembly = Assembly.LoadFrom(dllPath);
 
@@ -119,11 +126,14 @@ namespace TorgovoPosredFirma.View.Forms
                             if (type != null)
                             {
                                 GetConnectionString?.Invoke(this, EventArgs.Empty);
-                                var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser, this});
+                                var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser, this });
                                 var method = type.GetMethod(module.FunctionName);
                                 if (method != null)
                                 {
-                                    _currentMethod = module.FunctionName;
+                                    if (module.IsMethodTakeable == true)
+                                    {
+                                        _currentMethod = module.FunctionName;
+                                    }
                                     var result = method.Invoke(instance, null);
                                     if (result != null && result is IEnumerable<object>)
                                     {
@@ -230,7 +240,14 @@ namespace TorgovoPosredFirma.View.Forms
                     // вызов метода из dll
                     try
                     {
-                        _currentDll = module.DllName;
+                        if (module.IsMethodTakeable == true)
+                        {
+                            _currentDll = module.DllName;
+                        }
+                        else
+                        {
+                            _currentNottakeableDll = module.DllName;
+                        }
                         string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
                         var assembly = Assembly.LoadFrom(dllPath);
 
@@ -238,11 +255,14 @@ namespace TorgovoPosredFirma.View.Forms
                         if (type != null)
                         {
                             GetConnectionString?.Invoke(this, EventArgs.Empty);
-                            var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser, this});
+                            var instance = Activator.CreateInstance(type, new object[] { _connectionString, _currentUser, this });
                             var method = type.GetMethod(module.FunctionName);
                             if (method != null)
                             {
-                                _currentMethod = module.FunctionName;
+                                if (module.IsMethodTakeable == true)
+                                {
+                                    _currentMethod = module.FunctionName;
+                                }
                                 var result = method.Invoke(instance, null);
                                 if (result != null && result is IEnumerable<object>)
                                 {
@@ -313,8 +333,8 @@ namespace TorgovoPosredFirma.View.Forms
                 Message("Не выбран пункт меню для удаления записи.");
                 return;
             }
-            
-            if(MainDGV.SelectedCells.Count > 0)
+
+            if (MainDGV.SelectedCells.Count > 0)
             {
                 DeleteClick?.Invoke(this, _currentDll);
             }
@@ -348,6 +368,10 @@ namespace TorgovoPosredFirma.View.Forms
         {
             try
             {
+                if (_currentNottakeableDll != null)
+                {
+                    currentDll = _currentDll;
+                }
                 string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, currentDll);
 
                 var assembly = Assembly.LoadFrom(dllPath);
@@ -358,31 +382,36 @@ namespace TorgovoPosredFirma.View.Forms
                     throw new Exception($"В DLL {currentDll} не найден класс, унаследованный от Form.");
                 }
                 // экземпляр
-                var formInstance = Activator.CreateInstance(formType, new object[] {FontSize});
+                var formInstance = Activator.CreateInstance(formType, new object[] { FontSize });
                 //закинули строку подключения
                 if (formInstance is IConnectionStringConsumer consumer && formInstance is Form form)
                 {
                     consumer.SetConnectionString(_connectionString);
-                    if (MainDGV.SelectedCells.Count > 0) 
+                    if (MainDGV.SelectedCells.Count > 0)
                     {
-                        var cellValue = MainDGV.Rows[MainDGV.SelectedCells[0].RowIndex].Cells[0].Value; 
+                        var cellValue = MainDGV.Rows[MainDGV.SelectedCells[0].RowIndex].Cells[0].Value;
 
-                        if (cellValue != null && !string.IsNullOrEmpty(cellValue.ToString())) 
+                        if (cellValue != null && !string.IsNullOrEmpty(cellValue.ToString()))
                         {
                             consumer.SetOpenType(typeOfOpen, int.Parse(cellValue.ToString()), _currentUser.IsAdmin);
                             if (typeOfOpen == "Delete")
                             {
+                                _currentNottakeableDll = null;
                                 RefreshData();
                                 return;
                             }
                             form.ShowDialog();
-                        }
-                        else
-                        {
-                            consumer.SetOpenType(typeOfOpen, null, _currentUser.IsAdmin);
-                            form.ShowDialog();
+                            _currentNottakeableDll = null;
                         }
                         RefreshData();
+                        _currentNottakeableDll = null;
+                    }
+                    else if (typeOfOpen == "Add")
+                    {
+                        consumer.SetOpenType(typeOfOpen, null, _currentUser.IsAdmin);
+                        form.ShowDialog();
+                        RefreshData();
+                        _currentNottakeableDll = null;
                     }
                     else
                     {
@@ -399,6 +428,41 @@ namespace TorgovoPosredFirma.View.Forms
             {
                 Message($"Ошибка открытия формы: {ex.Message}");
             }
+        }
+
+        private void SearchBtn_Click(object sender, EventArgs e)
+        {
+            RefreshData();
+            string searchText = SearchTextBox.Text.Trim().ToLower(); // Текст для поиска
+
+            DataTable originalDataTable = MainDGV.DataSource as DataTable; // Получаем DataTable
+            if (originalDataTable == null) return; // Проверяем наличие данных
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                RefreshData();
+                return;
+            }
+
+            // Создаем новый DataTable для фильтрованных данных
+            DataTable filteredTable = originalDataTable.Clone(); // Копируем структуру таблицы
+
+            // Перебираем строки и ищем совпадения
+            foreach (DataRow row in originalDataTable.Rows)
+            {
+                // Проверяем каждую ячейку строки на наличие текста
+                foreach (var item in row.ItemArray)
+                {
+                    if (item != null && item.ToString().ToLower().Contains(searchText))
+                    {
+                        filteredTable.ImportRow(row); // Добавляем строку в результат
+                        break; // Достаточно одного совпадения
+                    }
+                }
+            }
+
+            // Отображаем фильтрованную таблицу
+            MainDGV.DataSource = filteredTable;
         }
     }
 }
