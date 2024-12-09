@@ -32,16 +32,16 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             MainMenu = new MenuStrip();
             MainPanel = new Panel();
+            MainDGV = new DataGridView();
             BottomPanel = new Panel();
             NSTULogo = new PictureBox();
             AddBtn = new Button();
             UpdateBtn = new Button();
             DeleteBtn = new Button();
-            MainDGV = new DataGridView();
             MainPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)MainDGV).BeginInit();
             BottomPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)NSTULogo).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)MainDGV).BeginInit();
             SuspendLayout();
             // 
             // MainMenu
@@ -56,13 +56,40 @@
             // 
             // MainPanel
             // 
-            MainPanel.Controls.Add(BottomPanel);
             MainPanel.Controls.Add(MainDGV);
+            MainPanel.Controls.Add(BottomPanel);
             MainPanel.Dock = DockStyle.Fill;
             MainPanel.Location = new Point(0, 24);
             MainPanel.Name = "MainPanel";
             MainPanel.Size = new Size(800, 426);
             MainPanel.TabIndex = 1;
+            // 
+            // MainDGV
+            // 
+            MainDGV.AllowUserToAddRows = false;
+            MainDGV.AllowUserToDeleteRows = false;
+            MainDGV.AllowUserToResizeColumns = false;
+            MainDGV.AllowUserToResizeRows = false;
+            MainDGV.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            MainDGV.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            MainDGV.BackgroundColor = SystemColors.GradientInactiveCaption;
+            MainDGV.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = SystemColors.Window;
+            dataGridViewCellStyle1.Font = new Font("Bahnschrift", 12F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            dataGridViewCellStyle1.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = Color.Firebrick;
+            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.False;
+            MainDGV.DefaultCellStyle = dataGridViewCellStyle1;
+            MainDGV.Dock = DockStyle.Fill;
+            MainDGV.GridColor = Color.Firebrick;
+            MainDGV.Location = new Point(0, 0);
+            MainDGV.MultiSelect = false;
+            MainDGV.Name = "MainDGV";
+            MainDGV.ReadOnly = true;
+            MainDGV.Size = new Size(800, 371);
+            MainDGV.TabIndex = 0;
             // 
             // BottomPanel
             // 
@@ -129,37 +156,11 @@
             DeleteBtn.UseVisualStyleBackColor = false;
             DeleteBtn.Click += DeleteBtn_Click;
             // 
-            // MainDGV
-            // 
-            MainDGV.AllowUserToAddRows = false;
-            MainDGV.AllowUserToDeleteRows = false;
-            MainDGV.AllowUserToResizeColumns = false;
-            MainDGV.AllowUserToResizeRows = false;
-            MainDGV.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            MainDGV.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            MainDGV.BackgroundColor = SystemColors.GradientInactiveCaption;
-            MainDGV.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = SystemColors.Window;
-            dataGridViewCellStyle1.Font = new Font("Bahnschrift", 12F, FontStyle.Regular, GraphicsUnit.Point, 204);
-            dataGridViewCellStyle1.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = Color.Firebrick;
-            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.False;
-            MainDGV.DefaultCellStyle = dataGridViewCellStyle1;
-            MainDGV.Dock = DockStyle.Fill;
-            MainDGV.GridColor = Color.Firebrick;
-            MainDGV.Location = new Point(0, 0);
-            MainDGV.MultiSelect = false;
-            MainDGV.Name = "MainDGV";
-            MainDGV.ReadOnly = true;
-            MainDGV.Size = new Size(800, 426);
-            MainDGV.TabIndex = 0;
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            AutoSize = true;
             ClientSize = new Size(800, 450);
             Controls.Add(MainPanel);
             Controls.Add(MainMenu);
@@ -171,9 +172,9 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Торгово-Посредническая фирма";
             MainPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)MainDGV).EndInit();
             BottomPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)NSTULogo).EndInit();
-            ((System.ComponentModel.ISupportInitialize)MainDGV).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }

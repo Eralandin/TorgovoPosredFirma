@@ -17,12 +17,28 @@
       <HintPath>..\AccountingUnits\bin\Debug\net8.0-windows\AccountingUnits.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Banks">
+      <HintPath>..\Banks\bin\Debug\net8.0-windows\Banks.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Countries">
+      <HintPath>..\Countries\bin\Debug\net8.0-windows\Countries.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Employees">
       <HintPath>..\Employees\bin\Debug\net8.0-windows\Employees.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SettingsChanger">
+      <HintPath>..\SettingsChanger\bin\Debug\net8.0-windows\SettingsChanger.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SharedModels">
-      <HintPath>..\SharedModels\bin\Debug\net8.0\SharedModels.dll</HintPath>
+      <HintPath>..\SharedModels\bin\Debug\net8.0-windows\SharedModels.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Streets">
+      <HintPath>..\Streets\bin\Debug\net8.0-windows\Streets.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>

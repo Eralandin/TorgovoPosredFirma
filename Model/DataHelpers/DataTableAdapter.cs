@@ -13,21 +13,21 @@ namespace TorgovoPosredFirma.Model.DataHelpers
         public static DataTable AdaptToDataTable(IEnumerable<object> items)
         {
             if (items == null || !items.Any())
-                return new DataTable(); // Пустая таблица
+                return new DataTable(); //пустая
 
             var table = new DataTable();
 
-            // Получаем тип первого элемента
+            // определяем тип
             var firstItemType = items.First().GetType();
 
-            // Создаем колонки на основе свойств первого элемента
+            // создаём столбцы
             var properties = firstItemType.GetProperties();
             foreach (var prop in properties)
             {
                 table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
             }
 
-            // Заполняем строки
+            // заполняем таблицу
             foreach (var item in items)
             {
                 var row = table.NewRow();

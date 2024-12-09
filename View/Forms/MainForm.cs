@@ -16,13 +16,14 @@ using TorgovoPosredFirma.View.Interfaces;
 
 namespace TorgovoPosredFirma.View.Forms
 {
-    public partial class MainForm : Form, IMain
+    public partial class MainForm : Form, IMain, ISettingsChanger
     {
         private readonly MainPresenter _presenter;
         private string _connectionString;
         private string _currentDll;
         private string _currentMethod;
         private User _currentUser;
+        private float FontSize;
         public string CurrentDll
         {
             get => _currentDll;
@@ -31,6 +32,7 @@ namespace TorgovoPosredFirma.View.Forms
         public MainForm(User user)
         {
             InitializeComponent();
+            FontSize = 20.25f;
             _presenter = new MainPresenter(this, user);
             _currentUser = user;
             if (user.IsAdmin == true)
@@ -41,6 +43,28 @@ namespace TorgovoPosredFirma.View.Forms
             {
                 userAccessGrant?.Invoke(this, new EventArgs());
             }
+
+        }
+        public void ChangeFontSizeInForm(Control? parent, float newSize)
+        {
+            FontSize = newSize;
+            if (parent == null)
+            {
+                parent = this;
+            }
+            foreach (Control control in parent.Controls)
+            {
+                control.Font = new Font(control.Font.FontFamily, newSize, control.Font.Style);
+                if (control is Label || control is Button || control is CheckBox || control is ToolStripMenuItem || control is Panel)
+                {
+                    control.AutoSize = false;
+                }
+                if (control.HasChildren)
+                {
+                    ChangeFontSizeInForm(control, newSize);
+                }
+            }
+            this.Refresh();
         }
 
         public event EventHandler fullGrant;
@@ -88,7 +112,6 @@ namespace TorgovoPosredFirma.View.Forms
                         try
                         {
                             _currentDll = module.DllName;
-                            _currentMethod = module.FunctionName;
                             string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
                             var assembly = Assembly.LoadFrom(dllPath);
 
@@ -100,6 +123,7 @@ namespace TorgovoPosredFirma.View.Forms
                                 var method = type.GetMethod(module.FunctionName);
                                 if (method != null)
                                 {
+                                    _currentMethod = module.FunctionName;
                                     var result = method.Invoke(instance, null);
                                     if (result != null && result is IEnumerable<object>)
                                     {
@@ -185,7 +209,7 @@ namespace TorgovoPosredFirma.View.Forms
                 AddMenuItem(menuItems, module, menuItem, moduleRole);
             }
         }
-        private bool InheritIsNecessary(SharedModels.Module module, Dictionary<long, SharedModels.Module> moduleDict)
+        private static bool InheritIsNecessary(SharedModels.Module module, Dictionary<long, SharedModels.Module> moduleDict)
         {
             if (module.IsNecessary) return true;
 
@@ -203,11 +227,10 @@ namespace TorgovoPosredFirma.View.Forms
             {
                 menuItem.Click += (s, e) =>
                 {
-                    // Вызов метода из DLL
+                    // вызов метода из dll
                     try
                     {
                         _currentDll = module.DllName;
-                        _currentMethod = module.FunctionName;
                         string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.DllName);
                         var assembly = Assembly.LoadFrom(dllPath);
 
@@ -219,6 +242,7 @@ namespace TorgovoPosredFirma.View.Forms
                             var method = type.GetMethod(module.FunctionName);
                             if (method != null)
                             {
+                                _currentMethod = module.FunctionName;
                                 var result = method.Invoke(instance, null);
                                 if (result != null && result is IEnumerable<object>)
                                 {
@@ -251,7 +275,7 @@ namespace TorgovoPosredFirma.View.Forms
 
             menuItems[module.Id] = menuItem;
 
-            // Добавление в главное меню или вложение в родительский элемент
+            // добавление в глав. меню или вложение в родительский элемент
             if (module.IdParent == 0) // высшая иерархия элемент
             {
                 menuItem.ForeColor = Color.White;
@@ -270,7 +294,6 @@ namespace TorgovoPosredFirma.View.Forms
                 return;
             }
             AddClick?.Invoke(this, _currentDll);
-            RefreshData();
         }
 
         private void UpdateBtn_Click(object sender, EventArgs e)
@@ -281,7 +304,6 @@ namespace TorgovoPosredFirma.View.Forms
                 return;
             }
             UpdateClick?.Invoke(this, _currentDll);
-            RefreshData();
         }
 
         private void DeleteBtn_Click(object sender, EventArgs e)
@@ -295,7 +317,6 @@ namespace TorgovoPosredFirma.View.Forms
             if(MainDGV.SelectedCells.Count > 0)
             {
                 DeleteClick?.Invoke(this, _currentDll);
-                RefreshData();
             }
         }
         private void RefreshData()
@@ -337,9 +358,9 @@ namespace TorgovoPosredFirma.View.Forms
                     throw new Exception($"В DLL {currentDll} не найден класс, унаследованный от Form.");
                 }
                 // экземпляр
-                var formInstance = Activator.CreateInstance(formType);
+                var formInstance = Activator.CreateInstance(formType, new object[] {FontSize});
                 //закинули строку подключения
-                if (formInstance is IConnectionStringConsumer consumer)
+                if (formInstance is IConnectionStringConsumer consumer && formInstance is Form form)
                 {
                     consumer.SetConnectionString(_connectionString);
                     if (MainDGV.SelectedCells.Count > 0) 
@@ -351,24 +372,23 @@ namespace TorgovoPosredFirma.View.Forms
                             consumer.SetOpenType(typeOfOpen, int.Parse(cellValue.ToString()), _currentUser.IsAdmin);
                             if (typeOfOpen == "Delete")
                             {
+                                RefreshData();
                                 return;
                             }
+                            form.ShowDialog();
                         }
                         else
                         {
                             consumer.SetOpenType(typeOfOpen, null, _currentUser.IsAdmin);
+                            form.ShowDialog();
                         }
+                        RefreshData();
                     }
                     else
                     {
                         MessageBox.Show("Пожалуйста, выберите ячейку.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
-                }
-
-                if (formInstance is Form form)
-                {
-                    form.ShowDialog(); 
                 }
                 else
                 {
