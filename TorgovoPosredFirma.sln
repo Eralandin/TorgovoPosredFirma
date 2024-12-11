@@ -3,12 +3,24 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorgovoPosredFirma", "TorgovoPosredFirma.csproj", "{D029AC59-9872-4596-BBA1-EB96B89AED61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TorgovoPosredFirma", "TorgovoPosredFirma.csproj", "{D029AC59-9872-4596-BBA1-EB96B89AED61}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B746E631-CCD2-4031-B180-8D52A20255A5}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Employees", "..\Employees\Employees.csproj", "{82261763-C31D-4E4E-A118-D755D45DCD3D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Streets", "..\Streets\Streets.csproj", "{C14790AC-8386-45E4-BD65-C90302524588}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountingUnits", "..\AccountingUnits\AccountingUnits.csproj", "{621B62ED-298D-44B7-A49C-2B153CE9BAD6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Banks", "..\Banks\Banks.csproj", "{FA40973C-6CFC-4517-B9C3-ACA9D52310C8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Countries", "..\Countries\Countries.csproj", "{72195893-7B59-4450-962C-CDF99730DD8A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SettingsChanger", "..\SettingsChanger\SettingsChanger.csproj", "{B2E6F756-807C-44B9-A9CD-9C453E1EACC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +32,30 @@ Global
 		{D029AC59-9872-4596-BBA1-EB96B89AED61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D029AC59-9872-4596-BBA1-EB96B89AED61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D029AC59-9872-4596-BBA1-EB96B89AED61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82261763-C31D-4E4E-A118-D755D45DCD3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82261763-C31D-4E4E-A118-D755D45DCD3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82261763-C31D-4E4E-A118-D755D45DCD3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82261763-C31D-4E4E-A118-D755D45DCD3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C14790AC-8386-45E4-BD65-C90302524588}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C14790AC-8386-45E4-BD65-C90302524588}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C14790AC-8386-45E4-BD65-C90302524588}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C14790AC-8386-45E4-BD65-C90302524588}.Release|Any CPU.Build.0 = Release|Any CPU
+		{621B62ED-298D-44B7-A49C-2B153CE9BAD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{621B62ED-298D-44B7-A49C-2B153CE9BAD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{621B62ED-298D-44B7-A49C-2B153CE9BAD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{621B62ED-298D-44B7-A49C-2B153CE9BAD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA40973C-6CFC-4517-B9C3-ACA9D52310C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA40973C-6CFC-4517-B9C3-ACA9D52310C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA40973C-6CFC-4517-B9C3-ACA9D52310C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA40973C-6CFC-4517-B9C3-ACA9D52310C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72195893-7B59-4450-962C-CDF99730DD8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72195893-7B59-4450-962C-CDF99730DD8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72195893-7B59-4450-962C-CDF99730DD8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72195893-7B59-4450-962C-CDF99730DD8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2E6F756-807C-44B9-A9CD-9C453E1EACC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2E6F756-807C-44B9-A9CD-9C453E1EACC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2E6F756-807C-44B9-A9CD-9C453E1EACC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2E6F756-807C-44B9-A9CD-9C453E1EACC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
